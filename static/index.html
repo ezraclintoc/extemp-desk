@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extemp Desk</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">ED</span>
+    <div>
+      <h1>Extemp Desk</h1>
+      <p class="tagline">Your filed articles. Searchable with the internet off.</p>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab is-active" data-view="search" role="tab">Search library</button>
+    <button class="tab" data-view="file" role="tab">File articles</button>
+    <button class="tab" data-view="sources" role="tab">Sources</button>
+  </nav>
+  <div class="stats" id="stats"></div>
+</header>
+
+<main>
+  <!-- ------------------------------------------------------------- search -->
+  <section class="view is-active" id="view-search">
+    <div class="searchbar">
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Search your library — e.g. tariff China, federal reserve -sports">
+      <kbd>/</kbd>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="days">
+        <button data-days="90" class="is-active">90 days</button>
+        <button data-days="30">30</button>
+        <button data-days="180">180</button>
+        <button data-days="0">All</button>
+      </div>
+      <select id="source"><option value="">Every source</option></select>
+      <span class="count" id="count"></span>
+    </div>
+
+    <div class="split">
+      <div class="results" id="results">
+        <div class="placeholder">Filing something first? Head to “File articles”.</div>
+      </div>
+      <article class="reader" id="reader">
+        <div class="placeholder">
+          Select an article to read it here in full — no browser, no loading, no internet.
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- file -->
+  <section class="view" id="view-file">
+    <div class="cards">
+      <section class="card">
+        <h2>Auto-File</h2>
+        <p class="hint">Bulk-download every recent article from the sources you enabled.</p>
+        <div class="sourcebar">
+          <span id="feed-count"></span>
+          <button class="btn small" id="goto-sources">Choose sources →</button>
+        </div>
+        <div class="row">
+          <label class="field inline">
+            <span>Last</span>
+            <input id="file-days" type="number" value="90" min="1" max="3650">
+            <span>days</span>
+          </label>
+          <label class="field inline">
+            <span>Max per feed</span>
+            <input id="file-cap" type="number" value="40" min="1" max="200">
+          </label>
+          <button class="btn primary" id="run-autofile">Auto-File now</button>
+        </div>
+        <p class="hint small" id="disk-usage"></p>
+      </section>
+
+      <section class="card">
+        <h2>Query-File</h2>
+        <p class="hint">
+          Search Bing News, GDELT and DuckDuckGo at once, then file the best hits.
+          One query per line. <code>"exact phrase"</code>, <code>-exclude</code>,
+          <code>site:reuters.com</code> all work.
+        </p>
+        <label class="field">
+          <span>Queries</span>
+          <textarea id="query" rows="4" spellcheck="false"
+            placeholder="semiconductor export controls China
+farm bill subsidies
+site:reuters.com federal reserve -sports"></textarea>
+        </label>
+        <div class="row">
+          <label class="field inline">
+            <span>Last</span>
+            <input id="query-days" type="number" value="90" min="1" max="3650">
+            <span>days</span>
+          </label>
+          <label class="field inline">
+            <span>Max articles</span>
+            <input id="query-limit" type="number" value="40" min="1" max="150">
+          </label>
+          <label class="check">
+            <input id="follow-refs" type="checkbox">
+            <span>Chase citations</span>
+          </label>
+          <button class="btn primary" id="run-query">Query-File now</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Article Extractor</h2>
+        <p class="hint">Paste any article link and keep just the readable text.</p>
+        <div class="row">
+          <label class="field grow">
+            <span>Article URL</span>
+            <input id="extract-url" type="url" placeholder="https://…" autocomplete="off">
+          </label>
+          <button class="btn" id="run-extract">Add article</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="jobpanel">
+      <div class="jobhead">
+        <h2>Activity</h2>
+        <span class="status" id="job-status">idle</span>
+      </div>
+      <div class="progress"><div class="bar" id="job-bar"></div></div>
+      <div class="log" id="job-log"></div>
+    </section>
+  </section>
+
+  <!-- ------------------------------------------------------------- sources -->
+  <section class="view" id="view-sources">
+    <div class="sources-head">
+      <div>
+        <h2>Sources</h2>
+        <p class="hint">
+          Everything ticked here is what Auto-File downloads. Add any RSS feed you trust —
+          think tanks, agencies, regional papers. Test a feed before relying on it.
+        </p>
+      </div>
+      <div class="row tight">
+        <button class="btn small" id="test-sources">Test all</button>
+        <button class="btn small" id="enable-all">Enable all</button>
+        <button class="btn small" id="disable-all">Disable all</button>
+      </div>
+    </div>
+
+    <div class="addfeed">
+      <input id="new-url" type="url" placeholder="https://example.com/feed.xml" autocomplete="off">
+      <input id="new-name" type="text" placeholder="Name (optional)" autocomplete="off">
+      <select id="new-area"></select>
+      <button class="btn primary" id="add-feed">Add source</button>
+    </div>
+
+    <div class="feedhead">
+      <span id="source-summary"></span>
+      <span id="source-note"></span>
+    </div>
+    <div class="feedlist" id="feed-list"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
